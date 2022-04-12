@@ -1,0 +1,3 @@
+[submodule "utils/bads"]
+	path = utils/bads
+	url = git@github.com:lacerbi/bads.git
