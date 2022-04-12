@@ -9,7 +9,7 @@ spec.err.obsFnc = 'value';
 spec.error_type  = 'beta-likelihood';
 spec.dep_var = '';
 spec.flag = '';
-spec.noruns = 2;
+spec.noruns = 5;
 spec.labels = {'tau_sh', 'tau_nosh', 'eta', 'al0', 'be0', 'lambda'};
 spec.limits =[0 0.2; 0 0.2; 1 10; 1 10; 1 10; log(0.0001) log(0.9999)];
 
