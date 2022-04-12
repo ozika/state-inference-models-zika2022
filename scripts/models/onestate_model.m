@@ -16,8 +16,6 @@ p.lambda = exp(p.lambda);
 al = p.al0;
 be = p.be0;
 
-vals = 0.:0.01:1;
-
 Q=[]; U=[];
 for i = 1:numel(o)
     
