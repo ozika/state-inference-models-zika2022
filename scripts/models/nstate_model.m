@@ -1,5 +1,5 @@
 function[out] = nstate_model(p, o, cfg)
-%% n-state mode from Zika2022
+%% n-state model from Zika2022
 % https://www.biorxiv.org/content/10.1101/2022.04.01.483303v2 
 % Author: Ondrej Zika
 
@@ -46,7 +46,7 @@ for i = 1:numel(o)
         be(i+1, os(ot)) = be(i, os(ot)); % pre-create
         
         % calculate the mode of the current state
-        Q(i, os(ot)) = (al(i,os(ot)) - 1) / ( al(i,os(ot)) + be(i,os(ot))  - 2);
+        Q(i, os(ot)) = (al(i,os(ot)) - 1) / ( al(i,os(ot)) + be(i,os(ot))  - 2); % note that this crashes if al/be are 1 or smaller
         
         % calculate the uncertainty of the current state
         sigm(i, os(ot)) = sqrt( al(i,os(ot))*be(i,os(ot)) ./  (((al(i,os(ot))+be(i,os(ot))).^2)*(al(i,os(ot))+be(i,os(ot))+1) ));
@@ -120,27 +120,13 @@ for i = 1:numel(o)
     % descibed in the paper) 
     if create_new == 1
         s(i+1) = max(s) + 1;
-        [Q(1:i,s(i+1)), S(1:i,s(i+1)), al(1:i,s(i+1)),be(1:i,s(i+1)),sigm(1:i, s(i+1))]  = deal([NaN]);
-
-        [mu, Q(i, s(i+1))] = deal(E(i, os(ot)));
-        sigm(i+1, s(i+1)) = sigm(1, 1);%
-        sigma = sigm(i+1, s(i+1)); %
-        param_sum =[];
-        param_sum = 2 + (al(i,s(i)) + be(i, s(i)))/2;
-        al_test = 1.01:0.1:param_sum;
-        be_test =param_sum+1-al_test;
-        minM = []; errM =[];
-        for tt = 1:numel(al_test)
-            errM(tt) = abs(mu - (al_test(tt) / (al_test(tt)+be_test(tt))));
-        end
-        ii=find(errM == min(errM)); 
-        ii=ii(1); 
-        al(i+1,s(i+1)) =al_test(ii);
-        be(i+1, s(i+1)) =  be_test(ii); 
-       
+        [Q(1:i,s(i+1)), S(1:i,s(i+1)), al(1:i,s(i+1)),be(1:i,s(i+1)),sigm(1:i, s(i+1)), sigma, mu]  = deal([NaN]);
+        [mu, Q(i, s(i+1))] = deal(E(i, s(i)));
+        [sigma, sigm(i+1, s(i+1))] = deal(sigm(1, 1));%       
+        [al(i+1,s(i+1)), be(i+1, s(i+1)), ~, ~] = beta_ms2ab(mu, sigma);
     else
         %learn towards state 
-        if o(i) == 0      
+        if o(i) == 0     
             be(i+1, s(i+1)) = p.lambda*(be(i, s(i+1)) + p.tau_nosh );
             al(i+1, s(i+1)) = p.lambda*(al(i, s(i+1)) ) ;
         elseif o(i) == 1
